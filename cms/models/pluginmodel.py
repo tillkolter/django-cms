@@ -6,7 +6,7 @@ import os
 import warnings
 
 from django.conf import settings
-from django.core.urlresolvers import NoReverseMatch
+from django.urls import NoReverseMatch
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import signals, Model, ManyToManyField
@@ -22,7 +22,7 @@ except ImportError:
 from django.utils import six, timezone
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.safestring import mark_safe
-from django.utils.six.moves import filter
+# from django.utils.six.moves import filter
 from django.utils.translation import ugettext_lazy as _
 
 from cms.exceptions import DontUsePageAttributeWarning
@@ -181,8 +181,8 @@ class CMSPlugin(six.with_metaclass(PluginModelBase, MP_Node)):
     2. Subclasses of CMSPlugin cannot define a "text" field.
 
     '''
-    placeholder = models.ForeignKey(Placeholder, editable=False, null=True)
-    parent = models.ForeignKey('self', blank=True, null=True, editable=False)
+    placeholder = models.ForeignKey(Placeholder, editable=False, null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('self', blank=True, null=True, editable=False, on_delete=models.SET_NULL)
     position = models.PositiveSmallIntegerField(_("position"), default = 0, editable=False)
     language = models.CharField(_("language"), max_length=15, blank=False, db_index=True, editable=False)
     plugin_type = models.CharField(_("plugin_name"), max_length=50, db_index=True, editable=False)

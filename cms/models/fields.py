@@ -6,7 +6,7 @@ from django.db import models
 
 class PlaceholderField(models.ForeignKey):
 
-    def __init__(self, slotname, default_width=None, actions=None, **kwargs):
+    def __init__(self, slotname, default_width=None, actions=None, on_delete=models.CASCADE, **kwargs):
         from cms.utils.placeholder import PlaceholderNoAction, validate_placeholder_name
 
         if not actions:
@@ -24,7 +24,7 @@ class PlaceholderField(models.ForeignKey):
         # We hard-code the `to` argument for ForeignKey.__init__
         # since a PlaceholderField can only be a ForeignKey to a Placeholder
         kwargs['to'] = 'cms.Placeholder'
-        super(PlaceholderField, self).__init__(**kwargs)
+        super(PlaceholderField, self).__init__(on_delete=on_delete, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super(PlaceholderField, self).deconstruct()

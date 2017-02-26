@@ -3,8 +3,8 @@ from logging import getLogger
 from os.path import join
 
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils import six
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.timezone import now
@@ -58,7 +58,8 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
     changed_by = models.CharField(
         _("changed by"), max_length=constants.PAGE_USERNAME_MAX_LENGTH,
         editable=False)
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', db_index=True,
+                               on_delete=models.SET_NULL)
     creation_date = models.DateTimeField(auto_now_add=True)
     changed_date = models.DateTimeField(auto_now=True)
 
@@ -81,7 +82,7 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
                                 help_text=_('The template used to render the content.'),
                                 default=TEMPLATE_DEFAULT)
     site = models.ForeignKey(Site, help_text=_('The site the page is accessible at.'), verbose_name=_("site"),
-                             related_name='djangocms_pages')
+                             related_name='djangocms_pages', on_delete=models.PROTECT)
 
     login_required = models.BooleanField(_("login required"), default=False)
     limit_visibility_in_menu = models.SmallIntegerField(_("menu visibility"), default=None, null=True, blank=True,
@@ -97,7 +98,11 @@ class Page(six.with_metaclass(PageMetaClass, MP_Node)):
     # Publisher fields
     publisher_is_draft = models.BooleanField(default=True, editable=False, db_index=True)
     # This is misnamed - the one-to-one relation is populated on both ends
-    publisher_public = models.OneToOneField('self', related_name='publisher_draft', null=True, editable=False)
+    publisher_public = models.OneToOneField('self',
+                                            related_name='publisher_draft',
+                                            null=True,
+                                            editable=False,
+                                            on_delete=models.SET_NULL)
     languages = models.CharField(max_length=255, editable=False, blank=True, null=True)
 
     # If the draft is loaded from a reversion version save the revision id here.
